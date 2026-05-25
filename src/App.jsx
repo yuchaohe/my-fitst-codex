@@ -60,6 +60,12 @@ export default function App() {
 
   const activeCount = todos.filter((todo) => !todo.completed).length;
   const completedCount = todos.length - activeCount;
+  const completionRate =
+    todos.length === 0
+      ? 0
+      : completedCount === todos.length
+        ? 100
+        : Math.floor((completedCount / todos.length) * 100);
 
   function addTodo(event) {
     event.preventDefault();
@@ -100,15 +106,16 @@ export default function App() {
       <section className="hero-card">
         <div className="hero-copy">
           <p className="eyebrow">PULSE TASKS</p>
-          <h1>把今天要做的事，整理得更清楚一点。</h1>
+          <h1>让今天的待办更安静，也更清楚。</h1>
           <p className="hero-text">
-            用一个轻量的待办事项面板，记录任务、切换状态，并自动保存在浏览器本地。
+            用低干扰的页面整理任务，把注意力放回真正要做的事。新增、筛选、搜索和本地保存都保留，
+            但视觉刺激更轻，适合长时间盯着看。
           </p>
         </div>
 
         <div className="hero-stats">
           <article>
-            <span>总任务</span>
+            <span>全部任务</span>
             <strong>{todos.length}</strong>
           </article>
           <article>
@@ -116,8 +123,8 @@ export default function App() {
             <strong>{activeCount}</strong>
           </article>
           <article>
-            <span>已完成</span>
-            <strong>{completedCount}</strong>
+            <span>完成率</span>
+            <strong>{completionRate}%</strong>
           </article>
         </div>
       </section>
@@ -130,9 +137,10 @@ export default function App() {
               type="text"
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
-              placeholder="例如：整理下周演示稿"
+              placeholder="例如：整理本周会议纪要"
               maxLength={100}
             />
+            <small className="field-hint">一次只写一件事，能明显减少来回切换的疲劳感。</small>
           </label>
           <button className="primary-button" type="submit">
             添加任务
@@ -140,28 +148,35 @@ export default function App() {
         </form>
 
         <div className="toolbar">
-          <div className="filters" role="tablist" aria-label="任务筛选">
-            {FILTERS.map((item) => (
-              <button
-                key={item.value}
-                className={item.value === filter ? 'filter-chip active' : 'filter-chip'}
-                type="button"
-                onClick={() => handleFilterChange(item.value)}
-              >
-                {item.label}
-              </button>
-            ))}
+          <div className="toolbar-copy">
+            <p className="toolbar-title">任务视图</p>
+            <p className="toolbar-note">按创建时间倒序显示，方便先处理最近新增的事项。</p>
           </div>
 
-          <label className="search-field">
-            <span className="sr-only">搜索任务</span>
-            <input
-              type="search"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="搜索任务"
-            />
-          </label>
+          <div className="toolbar-actions">
+            <div className="filters" role="tablist" aria-label="任务筛选">
+              {FILTERS.map((item) => (
+                <button
+                  key={item.value}
+                  className={item.value === filter ? 'filter-chip active' : 'filter-chip'}
+                  type="button"
+                  onClick={() => handleFilterChange(item.value)}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+
+            <label className="search-field">
+              <span className="sr-only">搜索任务</span>
+              <input
+                type="search"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="搜索待办、项目或关键字"
+              />
+            </label>
+          </div>
         </div>
 
         <div className="task-panel">
@@ -173,7 +188,7 @@ export default function App() {
                     className="toggle-button"
                     type="button"
                     onClick={() => toggleTodo(todo.id)}
-                    aria-label={todo.completed ? '标记为未完成' : '标记为完成'}
+                    aria-label={todo.completed ? '标记为未完成' : '标记为已完成'}
                   >
                     <span />
                   </button>
@@ -203,7 +218,7 @@ export default function App() {
           ) : (
             <div className="empty-state">
               <h2>当前没有匹配的任务</h2>
-              <p>试着添加一条新任务，或者切换筛选条件。</p>
+              <p>试着新增一条待办，或者切换筛选条件看看。</p>
             </div>
           )}
         </div>
@@ -212,6 +227,7 @@ export default function App() {
           <p>
             剩余 <strong>{activeCount}</strong> 项待完成
           </p>
+          <p className="footer-note">已完成 {completedCount} 项</p>
           <button
             className="ghost-button"
             type="button"
